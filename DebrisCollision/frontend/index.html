@@ -1,0 +1,611 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>
+        Space Debris Collision Predictor
+    </title>
+
+    <link
+        rel="stylesheet"
+        href="style.css"
+    >
+</head>
+
+
+<body>
+
+    <!-- =====================================================
+         HEADER
+    ====================================================== -->
+
+    <header class="topbar">
+
+        <div class="brand">
+
+            <div class="brand-icon">
+                🛰️
+            </div>
+
+            <div>
+                <h1>
+                    Space Debris
+                    <span>Collision Predictor</span>
+                </h1>
+
+                <p>
+                    ESA Collision Avoidance • Machine Learning
+                </p>
+            </div>
+
+        </div>
+
+
+        <div class="api-status">
+
+            <span
+                id="statusDot"
+                class="status-dot offline"
+            ></span>
+
+            <span id="statusText">
+                Checking API...
+            </span>
+
+        </div>
+
+    </header>
+
+
+    <!-- =====================================================
+         MAIN
+    ====================================================== -->
+
+    <main class="container">
+
+
+        <!-- =================================================
+             UPLOAD SECTION
+        ================================================== -->
+
+        <section class="card upload-card">
+
+            <div class="section-heading">
+
+                <div>
+                    <span class="eyebrow">
+                        DATA SOURCE
+                    </span>
+
+                    <h2>
+                        Upload Collision Dataset
+                    </h2>
+                </div>
+
+            </div>
+
+
+            <div
+                id="dropZone"
+                class="drop-zone"
+            >
+
+                <div class="upload-icon">
+                    📂
+                </div>
+
+                <h3>
+                    Drop your ESA CSV here
+                </h3>
+
+                <p>
+                    or choose a file from your computer
+                </p>
+
+                <label
+                    for="csvFile"
+                    class="button primary"
+                >
+                    Choose CSV
+                </label>
+
+                <input
+                    id="csvFile"
+                    type="file"
+                    accept=".csv"
+                    hidden
+                >
+
+                <div
+                    id="fileName"
+                    class="file-name"
+                ></div>
+
+            </div>
+
+
+            <div
+                id="uploadResult"
+                class="upload-result hidden"
+            ></div>
+
+        </section>
+
+
+
+        <!-- =================================================
+             EVENT SELECTION
+        ================================================== -->
+
+        <section
+            id="eventSection"
+            class="card hidden"
+        >
+
+            <div class="section-heading">
+
+                <div>
+                    <span class="eyebrow">
+                        CONJUNCTION EVENT
+                    </span>
+
+                    <h2>
+                        Select Event
+                    </h2>
+                </div>
+
+                <div
+                    id="eventCount"
+                    class="badge"
+                >
+                    0 events
+                </div>
+
+            </div>
+
+
+            <div class="event-selector">
+
+                <select
+                    id="eventSelect"
+                >
+
+                    <option value="">
+                        Select an event...
+                    </option>
+
+                </select>
+
+
+                <button
+                    id="loadEventBtn"
+                    class="button primary"
+                    disabled
+                >
+                    Load Event
+                </button>
+
+            </div>
+
+        </section>
+
+
+
+        <!-- =================================================
+             LOADING
+        ================================================== -->
+
+        <div
+            id="loading"
+            class="loading hidden"
+        >
+
+            <div class="spinner"></div>
+
+            <span>
+                Processing event...
+            </span>
+
+        </div>
+
+
+
+        <!-- =================================================
+             DASHBOARD
+        ================================================== -->
+
+        <div
+            id="dashboard"
+            class="hidden"
+        >
+
+
+            <!-- =============================================
+                 EVENT HEADER
+            ============================================== -->
+
+            <section class="event-header">
+
+                <div>
+
+                    <span class="eyebrow">
+                        SELECTED EVENT
+                    </span>
+
+                    <h2 id="eventIdDisplay">
+                        —
+                    </h2>
+
+                </div>
+
+
+                <div class="event-meta">
+
+                    <div>
+                        <span>
+                            CDMs
+                        </span>
+
+                        <strong id="cdmCount">
+                            —
+                        </strong>
+                    </div>
+
+                </div>
+
+            </section>
+
+
+
+            <!-- =============================================
+                 OBJECTS
+            ============================================== -->
+
+            <section class="object-grid">
+
+
+                <!-- TARGET -->
+
+                <div class="card object-card">
+
+                    <div class="object-title">
+
+                        <div class="object-icon target">
+                            🎯
+                        </div>
+
+                        <div>
+                            <span class="eyebrow">
+                                OBJECT 1
+                            </span>
+
+                            <h2>
+                                Target
+                            </h2>
+                        </div>
+
+                    </div>
+
+
+                    <div
+                        id="targetInfo"
+                        class="info-grid"
+                    ></div>
+
+                </div>
+
+
+
+                <!-- CHASER -->
+
+                <div class="card object-card">
+
+                    <div class="object-title">
+
+                        <div class="object-icon chaser">
+                            🛰️
+                        </div>
+
+                        <div>
+                            <span class="eyebrow">
+                                OBJECT 2
+                            </span>
+
+                            <h2>
+                                Chaser
+                            </h2>
+                        </div>
+
+                    </div>
+
+
+                    <div
+                        id="chaserInfo"
+                        class="info-grid"
+                    ></div>
+
+                </div>
+
+            </section>
+
+
+
+            <!-- =============================================
+                 CLOSE APPROACH
+            ============================================== -->
+
+            <section class="card">
+
+                <div class="section-heading">
+
+                    <div>
+                        <span class="eyebrow">
+                            CLOSE APPROACH
+                        </span>
+
+                        <h2>
+                            Conjunction Parameters
+                        </h2>
+                    </div>
+
+                </div>
+
+
+                <div class="metric-grid">
+
+                    <div class="metric">
+
+                        <span>
+                            ⏱️ Time to TCA
+                        </span>
+
+                        <strong id="timeToTca">
+                            —
+                        </strong>
+
+                        <small>
+                            days
+                        </small>
+
+                    </div>
+
+
+                    <div class="metric">
+
+                        <span>
+                            📏 Miss Distance
+                        </span>
+
+                        <strong id="missDistance">
+                            —
+                        </strong>
+
+                        <small>
+                            meters
+                        </small>
+
+                    </div>
+
+
+                    <div class="metric">
+
+                        <span>
+                            ⚡ Relative Speed
+                        </span>
+
+                        <strong id="relativeSpeed">
+                            —
+                        </strong>
+
+                        <small>
+                            m/s
+                        </small>
+
+                    </div>
+
+                </div>
+
+            </section>
+
+
+
+            <!-- =============================================
+                 RELATIVE STATE
+            ============================================== -->
+
+            <section class="state-grid">
+
+
+                <!-- POSITION -->
+
+                <div class="card">
+
+                    <div class="section-heading">
+
+                        <div>
+                            <span class="eyebrow">
+                                RELATIVE STATE
+                            </span>
+
+                            <h2>
+                                Position — RTN
+                            </h2>
+                        </div>
+
+                    </div>
+
+
+                    <div
+                        id="positionInfo"
+                        class="vector-grid"
+                    ></div>
+
+                </div>
+
+
+
+                <!-- VELOCITY -->
+
+                <div class="card">
+
+                    <div class="section-heading">
+
+                        <div>
+                            <span class="eyebrow">
+                                RELATIVE STATE
+                            </span>
+
+                            <h2>
+                                Velocity — RTN
+                            </h2>
+                        </div>
+
+                    </div>
+
+
+                    <div
+                        id="velocityInfo"
+                        class="vector-grid"
+                    ></div>
+
+                </div>
+
+            </section>
+
+
+
+            <!-- =============================================
+                 PREDICTION
+            ============================================== -->
+
+            <section class="card prediction-card">
+
+                <div class="section-heading">
+
+                    <div>
+                        <span class="eyebrow">
+                            MACHINE LEARNING
+                        </span>
+
+                        <h2>
+                            Collision Assessment
+                        </h2>
+                    </div>
+
+                </div>
+
+
+                <div class="prediction-grid">
+
+
+                    <div class="prediction-metric">
+
+                        <span>
+                            Predicted Risk
+                        </span>
+
+                        <strong id="predictedRisk">
+                            —
+                        </strong>
+
+                    </div>
+
+
+                    <div class="prediction-metric">
+
+                        <span>
+                            High-Risk Probability
+                        </span>
+
+                        <strong id="riskProbability">
+                            —
+                        </strong>
+
+                    </div>
+
+
+                    <div
+                        id="classificationBox"
+                        class="classification-box"
+                    >
+
+                        <span>
+                            Classification
+                        </span>
+
+                        <strong id="classification">
+                            —
+                        </strong>
+
+                    </div>
+
+                </div>
+
+
+                <div
+                    id="predictionInfo"
+                    class="prediction-note"
+                ></div>
+
+            </section>
+
+
+
+            <!-- =============================================
+                 TIMELINE
+            ============================================== -->
+
+            <section class="card">
+
+                <div class="section-heading">
+
+                    <div>
+                        <span class="eyebrow">
+                            EVENT HISTORY
+                        </span>
+
+                        <h2>
+                            CDM Timeline
+                        </h2>
+                    </div>
+
+                </div>
+
+
+                <div
+                    id="timeline"
+                    class="timeline"
+                ></div>
+
+            </section>
+
+
+        </div>
+
+
+    </main>
+
+
+
+    <!-- =====================================================
+         TOAST
+    ====================================================== -->
+
+    <div
+        id="toast"
+        class="toast"
+    ></div>
+
+
+    <script src="script.js"></script>
+
+</body>
+
+</html>
